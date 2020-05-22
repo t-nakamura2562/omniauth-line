@@ -1,11 +1,12 @@
 require 'omniauth-oauth2'
 require 'json'
+require 'jwt'
 
 module OmniAuth
   module Strategies
     class Line < OmniAuth::Strategies::OAuth2
       option :name, 'line'
-      option :scope, 'profile openid'
+      option :scope, 'email profile openid'
 
       option :client_options, {
         site: 'https://access.line.me',
@@ -25,7 +26,8 @@ module OmniAuth
         {
           name:        raw_info['displayName'],
           image:       raw_info['pictureUrl'],
-          description: raw_info['statusMessage']
+          description: raw_info['statusMessage'],
+          email:       JWT.decode(access_token.params['id_token'], ENV['LINE_CHANNEL_SECRET']).first['email']
         }
       end
 
